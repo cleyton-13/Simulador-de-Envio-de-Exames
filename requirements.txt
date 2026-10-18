@@ -1,0 +1,5 @@
+pynetdicom>=2.0
+pydicom>=2.4
+streamlit>=1.40
+numpy
+pytest

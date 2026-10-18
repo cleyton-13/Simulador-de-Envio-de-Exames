@@ -1,0 +1,23 @@
+[
+  {
+    "nome": "CT-SALA-1",
+    "aet": "CT_SALA1",
+    "desc": "Tomógrafo sala 1 teste",
+    "setor": "Imagem - Sala 1",
+    "ip_equip": "172.29.77.50"
+  },
+  {
+    "nome": "RX-EMERG",
+    "aet": "RX_EMERG",
+    "desc": "Raio-X emergencia",
+    "setor": "Emergencia",
+    "ip_equip": "192.168.1.51"
+  },
+  {
+    "nome": "TOMOGRAFO",
+    "aet": "CT_SALA1",
+    "desc": "Tomógrafo sala 1 teste",
+    "setor": "",
+    "ip_equip": "127.0.0.1"
+  }
+]

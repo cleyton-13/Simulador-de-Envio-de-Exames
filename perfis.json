@@ -1,0 +1,268 @@
+{
+  "destinos": {
+    "local": {
+      "pacs": {
+        "aet": "PACS_TESTE",
+        "ip": "127.0.0.1",
+        "porta": 11112
+      },
+      "ris": {
+        "aet": "PACS_TESTE",
+        "ip": "127.0.0.1",
+        "porta": 11112
+      },
+      "impressora": {
+        "aet": "PACS_TESTE",
+        "ip": "127.0.0.1",
+        "porta": 11112
+      }
+    },
+    "forge_code": {
+      "pacs": {
+        "aet": "PACM",
+        "ip": "192.168.18.61",
+        "porta": 4252
+      },
+      "ris": {
+        "aet": "PACM",
+        "ip": "192.168.18.61",
+        "porta": 4252
+      }
+    }
+  },
+  "fabricantes": {
+    "GE": {
+      "padrao": {
+        "modelo": "Revolution CT (simulado)"
+      }
+    },
+    "Philips": {
+      "padrao": {
+        "modelo": "Ingenuity (simulado)"
+      }
+    },
+    "Siemens": {
+      "padrao": {
+        "modelo": "SOMATOM (simulado)"
+      }
+    },
+    "Generico": {
+      "padrao": {
+        "modelo": "Simulador"
+      }
+    }
+  },
+  "equipamentos": [
+    {
+      "nome": "CT Sala 1",
+      "aet": "CT_SALA1",
+      "modalidade": "CT",
+      "fabricante": "GE",
+      "setor": "Imagem - Sala 1",
+      "destino": "local",
+      "series": [
+        {
+          "descricao": "SCOUT",
+          "imagens": 1
+        },
+        {
+          "descricao": "AXIAL 5mm",
+          "imagens": 5
+        }
+      ],
+      "mpps": true,
+      "commitment": true,
+      "imprimir": true
+    },
+    {
+      "nome": "RX Emergência",
+      "aet": "RX_EMERG",
+      "modalidade": "CR",
+      "fabricante": "Generico",
+      "setor": "Emergência",
+      "destino": "local",
+      "series": [
+        {
+          "descricao": "TORAX PA",
+          "imagens": 1
+        }
+      ],
+      "mpps": true,
+      "commitment": false,
+      "imprimir": false
+    },
+    {
+      "nome": "RM Sala 2",
+      "aet": "MR_SALA2",
+      "modalidade": "MR",
+      "fabricante": "Siemens",
+      "setor": "Imagem - Sala 2",
+      "destino": "local",
+      "series": [
+        {
+          "descricao": "T1 SAG",
+          "imagens": 3
+        },
+        {
+          "descricao": "T2 AX",
+          "imagens": 3
+        }
+      ],
+      "mpps": true,
+      "commitment": false,
+      "imprimir": false
+    },
+    {
+      "nome": "US Ambulatório",
+      "aet": "US_AMBUL",
+      "modalidade": "US",
+      "fabricante": "Philips",
+      "setor": "Ambulatório",
+      "destino": "local",
+      "series": [
+        {
+          "descricao": "ABDOME",
+          "imagens": 2
+        }
+      ],
+      "mpps": false,
+      "commitment": false,
+      "imprimir": false
+    },
+    {
+      "nome": "Raio-X Digital",
+      "aet": "DX_SALA1",
+      "modalidade": "DX",
+      "fabricante": "Generico",
+      "setor": "Radiologia",
+      "destino": "local",
+      "series": [
+        {
+          "descricao": "TORAX PA",
+          "imagens": 1
+        },
+        {
+          "descricao": "TORAX PERFIL",
+          "imagens": 1
+        }
+      ],
+      "mpps": true,
+      "commitment": false,
+      "imprimir": false
+    },
+    {
+      "nome": "Angiógrafo",
+      "aet": "XA_HEMOD",
+      "modalidade": "XA",
+      "fabricante": "Philips",
+      "setor": "Hemodinâmica",
+      "destino": "local",
+      "series": [
+        {
+          "descricao": "CORONARIOGRAFIA",
+          "imagens": 3
+        }
+      ],
+      "mpps": true,
+      "commitment": false,
+      "imprimir": false
+    },
+    {
+      "nome": "Mamógrafo",
+      "aet": "MG_MAMO1",
+      "modalidade": "MG",
+      "fabricante": "Generico",
+      "setor": "Mamografia",
+      "destino": "local",
+      "series": [
+        {
+          "descricao": "CC DIREITA",
+          "imagens": 1
+        },
+        {
+          "descricao": "MLO DIREITA",
+          "imagens": 1
+        },
+        {
+          "descricao": "CC ESQUERDA",
+          "imagens": 1
+        },
+        {
+          "descricao": "MLO ESQUERDA",
+          "imagens": 1
+        }
+      ],
+      "mpps": true,
+      "commitment": false,
+      "imprimir": false
+    },
+    {
+      "nome": "Fluoroscopia",
+      "aet": "RF_FLUORO",
+      "modalidade": "RF",
+      "fabricante": "Siemens",
+      "setor": "Fluoroscopia",
+      "destino": "local",
+      "series": [
+        {
+          "descricao": "ESOFAGO",
+          "imagens": 2
+        }
+      ],
+      "mpps": true,
+      "commitment": false,
+      "imprimir": false
+    },
+    {
+      "nome": "PET/CT",
+      "aet": "PT_PETCT",
+      "modalidade": "PT",
+      "fabricante": "GE",
+      "setor": "Medicina Nuclear",
+      "destino": "local",
+      "series": [
+        {
+          "descricao": "PET CORPO INTEIRO",
+          "imagens": 3
+        }
+      ],
+      "mpps": true,
+      "commitment": false,
+      "imprimir": false
+    },
+    {
+      "nome": "Medicina Nuclear",
+      "aet": "NM_CINTIL",
+      "modalidade": "NM",
+      "fabricante": "Philips",
+      "setor": "Medicina Nuclear",
+      "destino": "local",
+      "series": [
+        {
+          "descricao": "CINTILOGRAFIA",
+          "imagens": 1
+        }
+      ],
+      "mpps": true,
+      "commitment": false,
+      "imprimir": false
+    },
+    {
+      "nome": "Captura / Outros",
+      "aet": "OT_CAPTURA",
+      "modalidade": "OT",
+      "fabricante": "Generico",
+      "setor": "Endoscopia",
+      "destino": "local",
+      "series": [
+        {
+          "descricao": "CAPTURA",
+          "imagens": 2
+        }
+      ],
+      "mpps": true,
+      "commitment": false,
+      "imprimir": false
+    }
+  ]
+}

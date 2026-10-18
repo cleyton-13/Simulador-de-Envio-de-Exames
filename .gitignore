@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+# dados gerados pelos testes
+received/
+received_envio/
+recuperado/
+relatorios/
+printed/
+estado/
+*.log

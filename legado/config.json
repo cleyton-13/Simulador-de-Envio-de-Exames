@@ -1,0 +1,17 @@
+{
+  "meu_aet": "SIMULADOR",
+  "pacs_aet": "PACM",
+  "pacs_ip": "192.168.18.61",
+  "pacs_port": 4242,
+  "mwl_aet": "RIS_TESTE",
+  "mwl_ip": "127.0.0.1",
+  "mwl_port": 11114,
+  "printer_aet": "PRINTER_TESTE",
+  "printer_ip": "127.0.0.1",
+  "printer_port": 11115,
+  "meu_port": 11113,
+  "timeout_acse": 10,
+  "timeout_dimse": 30,
+  "pasta_recebidos": "received",
+  "tema": "escuro"
+}

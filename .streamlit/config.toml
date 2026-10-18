@@ -1,0 +1,13 @@
+[theme]
+primaryColor = "#3b82f6"
+backgroundColor = "#f8fafc"
+secondaryBackgroundColor = "#ffffff"
+textColor = "#0f172a"
+font = "sans serif"
+
+[server]
+headless = true
+
+[client]
+# "minimal" esconde o botão Deploy (publicar no Streamlit Cloud) e deixa só o menu básico
+toolbarMode = "minimal"

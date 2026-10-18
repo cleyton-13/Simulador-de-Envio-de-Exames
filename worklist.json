@@ -1,0 +1,47 @@
+[
+  {
+    "PatientName": "SILVA^JOAO",
+    "PatientID": "PAC001",
+    "PatientBirthDate": "19800115",
+    "PatientSex": "M",
+    "AccessionNumber": "ACC2024001",
+    "StudyInstanceUID": "1.2.826.0.1.3680043.8.498.1001",
+    "RequestedProcedureID": "REQ001",
+    "RequestedProcedureDescription": "TC DE CRANIO",
+    "Modality": "CT",
+    "ScheduledStationAETitle": "SIMULADOR",
+    "ScheduledProcedureStepStartDate": "20261016",
+    "ScheduledProcedureStepStartTime": "090000",
+    "ScheduledProcedureStepID": "SPS001"
+  },
+  {
+    "PatientName": "SANTOS^MARIA",
+    "PatientID": "PAC002",
+    "PatientBirthDate": "19900520",
+    "PatientSex": "F",
+    "AccessionNumber": "ACC2024002",
+    "StudyInstanceUID": "1.2.826.0.1.3680043.8.498.1002",
+    "RequestedProcedureID": "REQ002",
+    "RequestedProcedureDescription": "RX DE TORAX",
+    "Modality": "CR",
+    "ScheduledStationAETitle": "SIMULADOR",
+    "ScheduledProcedureStepStartDate": "20261016",
+    "ScheduledProcedureStepStartTime": "100000",
+    "ScheduledProcedureStepID": "SPS002"
+  },
+  {
+    "PatientName": "OLIVEIRA^CARLOS",
+    "PatientID": "PAC003",
+    "PatientBirthDate": "19751203",
+    "PatientSex": "M",
+    "AccessionNumber": "ACC2024003",
+    "StudyInstanceUID": "1.2.826.0.1.3680043.8.498.1003",
+    "RequestedProcedureID": "REQ003",
+    "RequestedProcedureDescription": "RM DE JOELHO",
+    "Modality": "MR",
+    "ScheduledStationAETitle": "SIMULADOR",
+    "ScheduledProcedureStepStartDate": "20261017",
+    "ScheduledProcedureStepStartTime": "080000",
+    "ScheduledProcedureStepID": "SPS003"
+  }
+]

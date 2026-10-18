@@ -1,0 +1,47 @@
+[
+  {
+    "nome": "PACS do laboratory",
+    "aet": "PACS_TESTE",
+    "ip": "127.0.0.1",
+    "porta": 11112,
+    "tipo": "PACS",
+    "modalidade": "",
+    "desc": "PACS simulado local"
+  },
+  {
+    "nome": "RIS do laboratory",
+    "aet": "RIS_TESTE",
+    "ip": "127.0.0.1",
+    "porta": 11114,
+    "tipo": "RIS",
+    "modalidade": "",
+    "desc": "Worklist simulado"
+  },
+  {
+    "nome": "Impressora do laboratory",
+    "aet": "PRINTER_TESTE",
+    "ip": "127.0.0.1",
+    "porta": 11115,
+    "tipo": "IMPRESSORA",
+    "modalidade": "",
+    "desc": "Impressora simulada"
+  },
+  {
+    "nome": "Tomografia Clinica Forge Code",
+    "aet": "TC FORGE",
+    "ip": "192.168.18.50",
+    "porta": 4242,
+    "tipo": "PACS",
+    "modalidade": "CT",
+    "desc": "Clinica Forge Code Soluctions"
+  },
+  {
+    "nome": "CT FORGE CODE",
+    "aet": "PACM",
+    "ip": "192.168.18.61",
+    "porta": 4242,
+    "tipo": "PACS",
+    "modalidade": "",
+    "desc": ""
+  }
+]
