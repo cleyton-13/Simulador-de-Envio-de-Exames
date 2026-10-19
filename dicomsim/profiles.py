@@ -189,3 +189,51 @@ def destino_para_dict(modelo):
         elif isinstance(v, dict):
             out[chave] = dict(v)
     return out
+
+
+# ---------------------------------------------------------------- pacientes
+def nome_dicom(nome, sobrenome):
+    """'Clayton Bartalini' + 'Acassio' -> 'Acassio^Clayton Bartalini' (sobrenome primeiro)."""
+    nome, sobrenome = (nome or "").strip(), (sobrenome or "").strip()
+    return f"{sobrenome}^{nome}" if nome else sobrenome
+
+
+def salvar_paciente(dados, p, indice=None):
+    """p: {nome, sobrenome, id, nascimento (AAAAMMDD), sexo (M/F/O)}. indice=None cria novo."""
+    if not (p.get("nome", "").strip() or p.get("sobrenome", "").strip()):
+        raise ValueError("Informe pelo menos o nome ou o sobrenome.")
+    for campo in ("nome", "sobrenome"):
+        if "^" in p.get(campo, "") or "=" in p.get(campo, "") or "\\" in p.get(campo, ""):
+            raise ValueError("Não use ^ = \ nos nomes: são separadores do DICOM.")
+    if not p.get("id", "").strip():
+        raise ValueError("Informe o ID do paciente (prontuário).")
+    if len(p["id"]) > 64:
+        raise ValueError("O ID do paciente tem no máximo 64 caracteres.")
+    if p.get("nascimento") and (len(p["nascimento"]) != 8 or not p["nascimento"].isdigit()):
+        raise ValueError("Nascimento deve ser AAAAMMDD.")
+    lista = dados.setdefault("pacientes", [])
+    outros = [x for i, x in enumerate(lista) if i != indice]
+    if any(x["id"] == p["id"] for x in outros):
+        raise ValueError(f"Já existe um paciente com o ID '{p['id']}'.")
+    if indice is None:
+        lista.append(p)
+    else:
+        lista[indice] = p
+    return dados
+
+
+def excluir_paciente(dados, indice):
+    dados.get("pacientes", []).pop(indice)
+    return dados
+
+
+def item_de_paciente(p, modalidade="", procedimento="Exame de teste"):
+    """Paciente cadastrado -> 'item' de exame (mesmo formato da worklist), com
+    Accession e Study UID inéditos a cada chamada."""
+    from pydicom.uid import generate_uid
+    suf = generate_uid()[-8:]
+    return {"nome": nome_dicom(p.get("nome"), p.get("sobrenome")), "id": p["id"],
+            "nascimento": p.get("nascimento", ""), "sexo": p.get("sexo", "O"),
+            "acesso": "ACC" + suf, "estudo_uid": generate_uid(), "modalidade": modalidade,
+            "procedimento": procedimento, "passo": "SPS" + suf[-4:], "proc_id": "REQ" + suf[-4:],
+            "data": ""}

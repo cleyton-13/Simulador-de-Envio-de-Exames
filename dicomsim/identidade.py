@@ -9,11 +9,14 @@ sobrepor  reutiliza os UIDs gravados do último envio daquele equipamento →
 from __future__ import annotations
 
 import json
+import os
+import threading
 from pathlib import Path
 
 from pydicom.uid import generate_uid
 
 ARQUIVO = Path(__file__).resolve().parent.parent / "estado" / "envios.json"
+_TRAVA = threading.Lock()      # várias modalidades (threads) gravam o mesmo arquivo
 
 
 class Registro:
@@ -25,8 +28,19 @@ class Registro:
             self.dados = {}
 
     def salvar(self):
-        self.arquivo.parent.mkdir(parents=True, exist_ok=True)
-        self.arquivo.write_text(json.dumps(self.dados, indent=1), encoding="utf-8")
+        """Mescla o que esta instância gravou com o que já está no disco (outras threads) e
+        troca o arquivo de uma vez (os.replace): nunca fica meio escrito."""
+        with _TRAVA:
+            try:
+                disco = json.loads(self.arquivo.read_text(encoding="utf-8"))
+            except Exception:
+                disco = {}
+            disco.update(self.dados)
+            self.dados = disco
+            self.arquivo.parent.mkdir(parents=True, exist_ok=True)
+            tmp = self.arquivo.with_suffix(".tmp")
+            tmp.write_text(json.dumps(disco, indent=1), encoding="utf-8")
+            os.replace(tmp, self.arquivo)
 
     def ids(self, equipamento, modo, serie, imagem, estudo_padrao=None):
         """Devolve (estudo_uid, serie_uid, sop_uid, reaproveitado)."""

@@ -264,5 +264,14 @@
       "commitment": false,
       "imprimir": false
     }
+  ],
+  "pacientes": [
+    {
+      "nome": "Paciente",
+      "sobrenome": "Teste",
+      "id": "TESTE001",
+      "nascimento": "19800101",
+      "sexo": "O"
+    }
   ]
 }

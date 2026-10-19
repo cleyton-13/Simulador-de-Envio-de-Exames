@@ -233,6 +233,7 @@ class ServidorVirtual:
     def iniciar(self):
         ae = AE(ae_title=self.aet)
         ae.maximum_pdu_size = 0
+        ae.maximum_associations = 64     # o padrão (10) recusa uma frota com mais de 10 equipamentos
         ae.add_supported_context(Verification, TS)
         # 128 é o limite de contextos: reservo os 9 não-storage
         for ctx in StoragePresentationContexts[:110]:

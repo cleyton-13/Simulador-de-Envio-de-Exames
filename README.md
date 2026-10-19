@@ -16,6 +16,13 @@ Configuração única em `perfis.json` (destinos, fabricantes, equipamentos).
 Plano B (recomeço limpo, mesmo núcleo): pasta `../novo`.
 Os scripts `01`–`14` e `app_tela_testes.py` abaixo são o material antigo.
 
+## Telas (perfis de uso)
+- **Cliente:** *Enviar exame* (1 botão) e *Histórico*.
+- **Suporte:** *Início* (cenários prontos de 1 clique), *Enviar exame* (3 passos: onde → o quê → imagens),
+  *Diagnóstico* (por que não conecta? com resumo para copiar), *Cadastros* (equipamentos, destinos, pacientes), *Histórico*.
+- **Técnico:** tudo do Suporte + *Controle total* no envio, *Vários equipamentos* e *Servidor virtual*.
+O destino (PACS) e o perfil de uso ficam na barra lateral, com o semáforo de conexão.
+
 ## Imagens reais (TCIA)
 `python "Teste de Envio/baixar_imagens.py"` baixa 12 imagens reais e anonimizadas (CC BY) por modalidade
 (CT, MR, CR, DX, US, XA, MG, RF, PT, NM, OT) para `Teste de Envio/imagens_tcia/` (~540 MB, fora do git).

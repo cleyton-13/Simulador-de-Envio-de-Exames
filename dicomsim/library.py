@@ -120,6 +120,14 @@ def carimbar(ds, paciente, estudo_uid, serie_uid, serie_num, instancia_num,
              fabricante=None, modelo=None, estacao="", aet_local="", sop_uid=None):
     """Amarra a imagem ao exame (paciente + estudo da worklist) e cria UIDs novos."""
     agora = datetime.now()
+    # Acentos exigem declarar o conjunto de caracteres, senão o PACS mostra "JosÃ©".
+    textos = " ".join(str(paciente.get(k, "")) for k in ("nome", "id", "procedimento", "acesso"))
+    if not textos.isascii():
+        try:
+            textos.encode("latin-1")
+            ds.SpecificCharacterSet = "ISO_IR 100"      # Latin-1: o que os sistemas brasileiros usam
+        except UnicodeEncodeError:
+            ds.SpecificCharacterSet = "ISO_IR 192"      # UTF-8
     ds.PatientName = paciente.get("nome", "")
     ds.PatientID = paciente.get("id", "")
     if paciente.get("nascimento"):

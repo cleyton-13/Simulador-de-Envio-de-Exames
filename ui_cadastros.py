@@ -160,3 +160,57 @@ def tela_equipamentos():
         st.session_state["_prox_eq"] = (d["equipamentos"][0]["nome"] if d["equipamentos"] else NOVO)
         st.toast("Equipamento excluído.")
         st.rerun()
+
+
+def tela_pacientes():
+    from datetime import date
+    d = profiles.carregar()
+    pac = d.get("pacientes", [])
+    st.caption("Pacientes de teste para enviar nos exames. O nome vai ao PACS no formato DICOM "
+               "(Sobrenome^Nome); acentos são aceitos.")
+    rot = [f"{p.get('nome','')} {p.get('sobrenome','')} · ID {p['id']}".strip() for p in pac]
+    if "_prox_pac" in st.session_state:
+        st.session_state["pac_sel"] = st.session_state.pop("_prox_pac")
+    escolha = st.selectbox("Paciente", rot + [NOVO], key="pac_sel")
+    novo = escolha == NOVO
+    i = None if novo else rot.index(escolha)
+    p = {"nome": "", "sobrenome": "", "id": "", "nascimento": "", "sexo": "O"}
+    if not novo:
+        p.update(pac[i])
+    k = "novo" if novo else str(i)
+    c1, c2 = st.columns(2)
+    nome = c1.text_input("Nome", p["nome"], key=f"pn_{k}", placeholder="ex.: Clayton Bartalini")
+    sob = c2.text_input("Sobrenome", p["sobrenome"], key=f"ps_{k}", placeholder="ex.: Acassio")
+    c3, c4, c5 = st.columns(3)
+    pid = c3.text_input("ID do paciente (prontuário)", p["id"], key=f"pi_{k}")
+    try:
+        ini = date(int(p["nascimento"][:4]), int(p["nascimento"][4:6]), int(p["nascimento"][6:8])) \
+            if p["nascimento"] else None
+    except ValueError:
+        ini = None
+    nasc = c4.date_input("Nascimento", ini, min_value=date(1900, 1, 1), max_value=date.today(),
+                         format="DD/MM/YYYY", key=f"pd_{k}")
+    sexo = c5.selectbox("Sexo", ["M", "F", "O"], index=["M", "F", "O"].index(p["sexo"])
+                        if p["sexo"] in ("M", "F", "O") else 2,
+                        format_func=lambda v: {"M": "Masculino", "F": "Feminino", "O": "Outro"}[v],
+                        key=f"px_{k}")
+    st.caption(f"Como vai ao PACS: **{profiles.nome_dicom(nome, sob) or '—'}**")
+    b1, b2, _ = st.columns([1, 1, 3])
+    if b1.button("Salvar", type="primary", key=f"pb_{k}"):
+        try:
+            novo_p = {"nome": nome.strip(), "sobrenome": sob.strip(), "id": pid.strip(),
+                      "nascimento": nasc.strftime("%Y%m%d") if nasc else "", "sexo": sexo}
+            profiles.salvar_paciente(d, novo_p, i)
+            profiles.salvar(d)
+            st.session_state["_prox_pac"] = (f"{novo_p['nome']} {novo_p['sobrenome']} · "
+                                             f"ID {novo_p['id']}").strip()
+            st.toast("Paciente salvo.")
+            st.rerun()
+        except ValueError as err:
+            st.error(str(err))
+    if not novo and b2.button("Excluir", key=f"px2_{k}"):
+        profiles.excluir_paciente(d, i)
+        profiles.salvar(d)
+        st.session_state["_prox_pac"] = NOVO
+        st.toast("Paciente excluído.")
+        st.rerun()

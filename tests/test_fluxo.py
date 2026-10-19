@@ -228,3 +228,114 @@ def test_timeouts_ajustaveis():
         assert ae.acse_timeout == 3 and ae.dimse_timeout == 7
     finally:
         netutil.TIMEOUTS.update(antigo)
+
+
+def test_nome_legivel():
+    from dicomsim.util import nome_legivel
+    assert nome_legivel("Acassio^Clayton Bartalini") == "Clayton Bartalini Acassio"
+    assert nome_legivel("SILVA^JOAO^PEDRO") == "JOAO PEDRO SILVA"
+    assert nome_legivel("Souza") == "Souza"
+    assert nome_legivel("") == "(sem nome)"
+    assert nome_legivel("Doe^Jane^^Dra^") == "Dra Jane Doe"
+
+
+def test_cadastro_e_envio_de_paciente_com_acento(srv):
+    import copy
+    from pydicom import dcmread
+    d = copy.deepcopy(profiles.carregar())
+    p = {"nome": "João Ação", "sobrenome": "Conceição", "id": "PRONT123",
+         "nascimento": "19900131", "sexo": "M"}
+    profiles.salvar_paciente(d, p)
+    with pytest.raises(ValueError):                       # ID repetido
+        profiles.salvar_paciente(d, dict(p))
+    with pytest.raises(ValueError):                       # separador DICOM no nome
+        profiles.salvar_paciente(d, {**p, "id": "X", "nome": "A^B"})
+    item = profiles.item_de_paciente(p, "CT")
+    assert item["nome"] == "Conceição^João Ação"
+    em = Emissor(imprimir=False)
+    r = executar_exame(eq(series=[{"descricao": "S", "imagens": 1}], mpps=False),
+                       destino(srv), item=item, em=em)
+    assert r.ok
+    arq = next(srv.pasta.glob("*.dcm"))
+    ds = dcmread(arq)
+    assert str(ds.PatientName) == "Conceição^João Ação"
+    assert str(ds.PatientID) == "PRONT123" and ds.PatientBirthDate == "19900131"
+    assert ds.SpecificCharacterSet in ("ISO_IR 100", "ISO_IR 192")
+
+
+# ------------------------------------------------------------ diagnóstico e cenários
+def test_diagnostico_servidor_ok(srv):
+    from dicomsim import diagnostico
+    passos = diagnostico.diagnosticar("CT_T", destino(srv), "CT")
+    por = {p.id: p for p in passos}
+    assert diagnostico.conexao_ok(passos)
+    assert por["servicos"].status == "ok" and "MPPS" in por["servicos"].detalhe
+    assert por["worklist"].status == "ok"
+    txt = diagnostico.relatorio_texto(passos, "CT_T", destino(srv), "CT Teste")
+    assert "está funcionando" in txt
+
+
+def test_diagnostico_porta_fechada():
+    from dicomsim import diagnostico
+    d = profiles.Destino(Alvo("X", "127.0.0.1", porta()))
+    passos = diagnostico.diagnosticar("CT_T", d)
+    assert passos[0].status == "falha" and "firewall" in passos[0].dica
+    assert all(p.status == "pulado" for p in passos[1:])
+    assert not diagnostico.conexao_ok(passos)
+
+
+def test_diagnostico_porta_aberta_sem_dicom():
+    """Porta aberta de um serviço que não é DICOM (ex.: HTTP)."""
+    import threading
+    from dicomsim import diagnostico
+    sk = socket.socket(); sk.bind(("127.0.0.1", 0)); sk.listen(5)
+    p = sk.getsockname()[1]
+
+    def aceita():
+        try:
+            c, _ = sk.accept(); c.recv(10); c.close()
+        except OSError:
+            pass
+    threading.Thread(target=aceita, daemon=True).start()
+    try:
+        passos = diagnostico.diagnosticar("CT_T", profiles.Destino(Alvo("X", "127.0.0.1", p)))
+        por = {x.id: x for x in passos}
+        assert por["rede"].status == "ok" and por["aet"].status == "falha"
+    finally:
+        sk.close()
+
+
+def test_diagnostico_aet_recusado(srv):
+    """Servidor que só aceita um AE Title: o diagnóstico explica a recusa."""
+    from pynetdicom import AE, evt
+    from dicomsim import diagnostico
+    ae = AE(ae_title="SO_ESTE")
+    ae.add_supported_context("1.2.840.10008.1.1")
+    ae.require_calling_aet = ["PERMITIDO"]
+    p = porta()
+    s2 = ae.start_server(("127.0.0.1", p), block=False)
+    try:
+        passos = diagnostico.diagnosticar("INTRUSO", profiles.Destino(Alvo("SO_ESTE", "127.0.0.1", p)))
+        por = {x.id: x for x in passos}
+        assert por["aet"].status == "falha" and "cadastrado" in por["aet"].dica
+    finally:
+        s2.shutdown()
+
+
+def test_cenarios(srv):
+    from dicomsim import cenarios
+    dados = profiles.carregar()
+    e = eq(commitment=False)
+    ids = {c["id"] for c in cenarios.lista(dados)}
+    assert {"conexao", "exame", "agenda", "reenviar", "carga"} <= ids
+    por = {c["id"]: c for c in cenarios.lista(dados)}
+    assert cenarios.executar(por["conexao"], dados, e, destino(srv))["ok"]
+    assert cenarios.executar(por["exame"], dados, e, destino(srv))["ok"]
+    antes = len(srv.instancias)
+    assert cenarios.executar(por["reenviar"], dados, e, destino(srv))["ok"]
+    assert cenarios.executar(por["reenviar"], dados, e, destino(srv))["ok"]
+    assert len(srv.instancias) == antes          # reenviar = mesmas instâncias do último exame
+    r = cenarios.executar({"tipo": "frota", "exames": 1}, dados, e, destino(srv))
+    falhas = [(x.equipamento, [(e.etapa, e.detalhe) for e in x.eventos if e.status == "falha"])
+              for x in r["resultados"] if not x.ok]
+    assert r["ok"] and len(r["resultados"]) == len(dados["equipamentos"]), falhas
