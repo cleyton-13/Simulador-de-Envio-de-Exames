@@ -12,6 +12,7 @@ from pydicom.uid import ExplicitVRLittleEndian, generate_uid
 
 RAIZ = Path(__file__).resolve().parent.parent
 PASTA_ENVIO = RAIZ / "Teste de Envio"
+PASTA_TCIA = PASTA_ENVIO / "imagens_tcia"   # baixadas por baixar_imagens.py (não vão ao git)
 
 SOP_POR_MODALIDADE = {
     "CT": "1.2.840.10008.5.1.4.1.1.2",
@@ -77,13 +78,17 @@ def imagem_sintetica(modalidade, indice=0, lado=256):
 
 
 def listar_reais(modalidade, pasta=PASTA_ENVIO):
-    """Todos os arquivos reais da modalidade (por tag), em ordem estável."""
+    """Todos os arquivos reais da modalidade, em ordem estável:
+    1º os do manifesto (Teste de Envio/imagens), 2º os baixados do TCIA (imagens_tcia/<MOD>)."""
     out = []
     for m in manifesto(pasta):
         if m.get("tag") == modalidade:
             p = Path(pasta) / m["arquivo"]
             if p.exists():
                 out.append(p)
+    tcia = Path(pasta) / "imagens_tcia" / modalidade
+    if tcia.exists():
+        out += sorted(tcia.glob("*.dcm"))
     return out
 
 

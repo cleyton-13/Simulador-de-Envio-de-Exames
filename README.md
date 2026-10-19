@@ -16,6 +16,12 @@ Configuração única em `perfis.json` (destinos, fabricantes, equipamentos).
 Plano B (recomeço limpo, mesmo núcleo): pasta `../novo`.
 Os scripts `01`–`14` e `app_tela_testes.py` abaixo são o material antigo.
 
+## Imagens reais (TCIA)
+`python "Teste de Envio/baixar_imagens.py"` baixa 12 imagens reais e anonimizadas (CC BY) por modalidade
+(CT, MR, CR, DX, US, XA, MG, RF, PT, NM, OT) para `Teste de Envio/imagens_tcia/` (~540 MB, fora do git).
+A lista e as licenças ficam em `Teste de Envio/fontes_tcia.json`; créditos em `Teste de Envio/CREDITAOS.md`.
+O simulador usa essas imagens automaticamente (origem "Reais anonimizadas").
+
 ---
 
 # Teste DICOM — Simulador de Modalidade / PACS / RIS / Impressora

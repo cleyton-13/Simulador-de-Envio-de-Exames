@@ -9,3 +9,6 @@ relatorios/
 printed/
 estado/
 *.log
+
+# imagens baixadas do TCIA (reproduzíveis por baixar_imagens.py + fontes_tcia.json)
+Teste de Envio/imagens_tcia/

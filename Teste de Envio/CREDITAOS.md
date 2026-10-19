@@ -91,3 +91,60 @@ python "Teste de Envio\montar_manifesto.py"      :: reconstrói manifesto.json
 O manifesto é sempre reconstruído **varrendo a pasta**, então basta jogar um
 `.dcm` novo em `imagens/` e rodar o `montar_manifesto.py` para ele entrar no
 jogo de envio.
+## Fonte 3 — The Cancer Imaging Archive (TCIA)
+
+Imagens **reais e anonimizadas** de pacientes, publicadas pelo TCIA (<https://www.cancerimagingarchive.net>),
+baixadas por `baixar_imagens.py` (1 imagem por série) para `imagens_tcia/<MODALIDADE>/`.
+Essa pasta **não é versionada**: a lista exata (coleção, UIDs, licença, DOI) está em `fontes_tcia.json`,
+e `python baixar_imagens.py` baixa tudo de novo. Apenas coleções com licença **CC BY** ou **CC0**
+entram; coleções sintéticas (VICTRE, MIDI-B) são excluídas de propósito.
+
+**Atribuição (CC BY):** ao divulgar resultados feitos com estas imagens, cite cada coleção pelo DOI abaixo
+e o artigo de dados do TCIA: Clark K. et al., *The Cancer Imaging Archive (TCIA): Maintaining and Operating a Public Information Repository*, J Digit Imaging 26(6):1045-1057, 2013.
+
+| Coleção | Modalidades usadas | Licença | DOI |
+|---|---|---|---|
+| ACRIN-Contralateral-Breast-MR | CR×1 | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | https://doi.org/10.7937/Q1EE-J082 |
+| ACRIN-FLT-Breast | OT×2, PT×2 | [CC BY 3.0](http://creativecommons.org/licenses/by/3.0/) |  |
+| ACRIN-NSCLC-FDG-PET | CR×1, NM×1, OT×3 | [CC BY 3.0](http://creativecommons.org/licenses/by/3.0/) | https://doi.org/10.7937/tcia.2019.30ilqfcl |
+| Anti-PD-1_Lung | OT×3, PT×1 | [CC BY 3.0](http://creativecommons.org/licenses/by/3.0/) |  https://doi.org/10.7937/tcia.2019.zjjwb9ip |
+| BREAST-DIAGNOSIS | MG×2 | [CC BY 3.0](http://creativecommons.org/licenses/by/3.0/) | https://doi.org/10.7937/K9/TCIA.2015.SDNRQXXR |
+| CC-Radiomics-Phantom | CT×1 | [CC BY 3.0](http://creativecommons.org/licenses/by/3.0/) | https://doi.org/10.7937/K9/TCIA.2017.zuzrml5b |
+| CMB-AML | XA×5 | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | https://doi.org/10.7937/PCTE-6M66 |
+| CMB-BRCA | MG×1, MR×1 | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | https://doi.org/10.7937/dx22-8j71 |
+| CMB-CRC | DX×2, MR×2, NM×1, US×3, XA×2 | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | https://doi.org/10.7937/DJG7-GZ87 |
+| CMB-GEC | CT×1 | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | https://doi.org/10.7937/e7kh-r486 |
+| CMB-LCA | NM×2, US×4 | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | https://doi.org/10.7937/3CX3-S132 |
+| CMB-MEL | CT×1, US×2 | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | https://doi.org/10.7937/GWSP-WH72 |
+| CMB-MML | CR×1, XA×4 | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | https://doi.org/10.7937/szkb-sw39 |
+| CMB-PCA | DX×1, NM×2, RF×1 | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | https://doi.org/10.7937/25T7-6Y12 |
+| CMMD | MG×1 | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | https://doi.org/10.7937/tcia.eqde-4b16 |
+| COVID-19-AR | CR×1, CT×1 | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | https://doi.org/10.7937/tcia.2020.py71-5978 |
+| COVID-19-NY-SBU | CR×1, DX×1, NM×1, OT×2 | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | https://doi.org/10.7937/TCIA.BBAG-2923 |
+| CPTAC-CCRCC | CT×1, MR×2 | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | https://doi.org/10.7937/K9/TCIA.2018.OBLAMN27 |
+| CPTAC-LSCC | PT×1 | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | https://doi.org/10.7937/K9/TCIA.2018.6EMUB5L2 |
+| CPTAC-LUAD | CT×1, PT×1 | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | https://doi.org/10.7937/K9/TCIA.2018.PAT12TBS |
+| CPTAC-PDA | CT×1, US×1 | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | https://doi.org/10.7937/K9/TCIA.2018.SC20FO18 |
+| CPTAC-UCEC | CT×1, PT×1, US×1 | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | https://doi.org/10.7937/K9/TCIA.2018.3R3JUISW |
+| EA1141 | MG×6 | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | https://doi.org/10.7937/2BAS-HR33 |
+| EAY131 | CT×1, NM×1, PT×2, XA×1 | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | https://doi.org/10.7937/c5ke-yx42 |
+| ICDC-Glioma | MR×1 | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | https://doi.org/10.7937/TCIA.SVQT-Q016 |
+| ISPY2 | MR×1 | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | https://doi.org/10.7937/TCIA.D8Z0-9T85 |
+| LIDC-IDRI | CR×4, DX×4 | [CC BY 3.0](http://creativecommons.org/licenses/by/3.0/) | https://doi.org/10.7937/K9/TCIA.2015.LO9QL9SX |
+| Mediastinal-Lymph-Node-SEG | CT×1 | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | https://doi.org/10.7937/QVAZ-JA09 |
+| Pseudo-PHI-DICOM-Data | CR×1, DX×1 | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | https://doi.org/10.7937/s17z-r072 |
+| QIN-PROSTATE-Repeatability | MR×1 | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | https://doi.org/10.7937/K9/TCIA.2018.MR1CKGND |
+| RIDER PHANTOM MRI | MR×1 | [CC BY 3.0](http://creativecommons.org/licenses/by/3.0/) | https://doi.org/10.7937/K9/TCIA.2015.MI4QDDHU |
+| RIDER Pilot | CR×2, DX×1 | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | https://doi.org/10.7937/m87f-mz83 |
+| TCGA-BLCA | CT×1 | [CC BY 3.0](http://creativecommons.org/licenses/by/3.0/) | https://doi.org/10.7937/K9/TCIA.2016.8LNG8XDR |
+| TCGA-BRCA | MG×2 | [CC BY 3.0](http://creativecommons.org/licenses/by/3.0/) | https://doi.org/10.7937/K9/TCIA.2016.AB2NAZRP |
+| TCGA-CESC | MR×1 | [CC BY 3.0](http://creativecommons.org/licenses/by/3.0/) | https://doi.org/10.7937/K9/TCIA.2016.SQ4M8YP4 |
+| TCGA-COAD | OT×1 | [CC BY 3.0](http://creativecommons.org/licenses/by/3.0/) | https://doi.org/10.7937/K9/TCIA.2016.HJJHBOXZ |
+| TCGA-KIRC | CT×1 | [CC BY 3.0](http://creativecommons.org/licenses/by/3.0/) | https://doi.org/10.7937/K9/TCIA.2016.V6PBVTDR |
+| TCGA-KIRP | PT×1 | [CC BY 3.0](http://creativecommons.org/licenses/by/3.0/) | https://doi.org/10.7937/K9/TCIA.2016.ACWOGBEF |
+| TCGA-LUAD | NM×2 | [CC BY 3.0](http://creativecommons.org/licenses/by/3.0/) | https://doi.org/10.7937/K9/TCIA.2016.JGNIHEP5 |
+| TCGA-LUSC | NM×1, PT×3 | [CC BY 3.0](http://creativecommons.org/licenses/by/3.0/) | https://doi.org/10.7937/K9/TCIA.2016.TYGKKFMQ |
+| TCGA-OV | OT×1 | [CC BY 3.0](http://creativecommons.org/licenses/by/3.0/) | https://doi.org/10.7937/K9/TCIA.2016.NDO1MDFQ |
+| UPENN-GBM | MR×1 | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | https://doi.org/10.7937/TCIA.709X-DN49 |
+| VAREPOP-APOLLO | DX×2, NM×1, RF×11, US×1 | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | https://doi.org/10.7937/GHKN-MD15 |
+| Vestibular-Schwannoma-MC-RC | MR×1 | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | https://doi.org/10.7937/HRZH-2N82 |

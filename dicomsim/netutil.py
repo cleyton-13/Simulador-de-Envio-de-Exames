@@ -37,11 +37,15 @@ class Alvo:
         return f"{self.aet}@{self.ip}:{self.porta}"
 
 
-def nova_ae(aet_local, contextos=(), verification=True, acse=10, dimse=30, network=10):
+# Ajustáveis em tempo de execução (tela Técnico): segundos.
+TIMEOUTS = {"acse": 10, "dimse": 30, "network": 10}
+
+
+def nova_ae(aet_local, contextos=(), verification=True, acse=None, dimse=None, network=None):
     ae = AE(ae_title=aet_local)
-    ae.acse_timeout = acse
-    ae.dimse_timeout = dimse
-    ae.network_timeout = network
+    ae.acse_timeout = acse or TIMEOUTS["acse"]
+    ae.dimse_timeout = dimse or TIMEOUTS["dimse"]
+    ae.network_timeout = network or TIMEOUTS["network"]
     if verification:
         # Muitos PACS recusam a associação sem Verification.
         ae.add_requested_context(Verification)

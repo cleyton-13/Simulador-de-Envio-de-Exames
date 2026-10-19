@@ -166,22 +166,99 @@ def pg_exame():
                                    format_func=lambda i: f"{ag[i]['nome']} · {ag[i]['acesso']} · "
                                                          f"{ag[i]['procedimento']}")
                 item = ag[idx]
+    extra = {}
     if modo == "Técnico":
         sj = st.text_area("Séries (JSON)", json.dumps(eq.series, ensure_ascii=False), height=90)
         try:
             eq.series = json.loads(sj)
         except Exception:
             st.warning("JSON de séries inválido; usando o do perfil.")
+        with st.expander("🔧 Controle total (Técnico)", expanded=False):
+            from dicomsim import library
+            from dicomsim.netutil import Alvo, TIMEOUTS
+            st.markdown("**Conexão**")
+            t1, t2, t3, t4 = st.columns(4)
+            eq.aet = t1.text_input("AE Title de origem", eq.aet, max_chars=16,
+                                   help="Muda só neste exame. Para gravar, use Equipamentos e destinos.")
+            TIMEOUTS["acse"] = t2.number_input("Timeout associação (s)", 1, 300, TIMEOUTS["acse"])
+            TIMEOUTS["dimse"] = t3.number_input("Timeout DIMSE (s)", 1, 600, TIMEOUTS["dimse"])
+            eq.porta_escuta = t4.number_input("Porta de retorno do commitment", 0, 65535,
+                                              eq.porta_escuta, help="0 = automática por AE Title")
+            st.markdown("**Destino deste exame** (altere à vontade; só grava se você pedir)")
+            novos = {}
+            for rot, chave, alvo in (("PACS", "pacs", dest.pacs), ("RIS", "ris", dest.ris),
+                                     ("Impressora", "impressora", dest.impressora)):
+                alvo = alvo or Alvo("", "", 104)
+                q1, q2, q3 = st.columns([2, 2, 1])
+                novos[chave] = {"aet": q1.text_input(f"{rot} · AE Title", alvo.aet, key=f"x_{chave}_a"),
+                                "ip": q2.text_input(f"{rot} · IP", alvo.ip, key=f"x_{chave}_i"),
+                                "porta": int(q3.number_input(f"{rot} · Porta", 1, 65535, alvo.porta,
+                                                              key=f"x_{chave}_p"))}
+            def _alvo(v):
+                return Alvo(v["aet"], v["ip"], v["porta"]) if v["aet"] and v["ip"] else None
+            dest = profiles.Destino(_alvo(novos["pacs"]) or dest.pacs, _alvo(novos["ris"]),
+                                    _alvo(novos["impressora"]))
+            if st.button("Salvar estes valores no destino selecionado"):
+                d["destinos"][chave_dest] = {k: v for k, v in novos.items() if v["aet"] and v["ip"]}
+                profiles.salvar(d)
+                st.success(f"Destino '{chave_dest}' atualizado.")
+            st.markdown("**Worklist** (filtros da consulta)")
+            w1, w2, w3, w4 = st.columns(4)
+            extra["filtros_wl"] = {
+                "modalidade": w1.text_input("Modalidade", eq.modalidade),
+                "data": w2.text_input("Data (AAAAMMDD)", ""),
+                "paciente": w3.text_input("Paciente (aceita *)", ""),
+                "estacao": w4.text_input("Station AE Title", "")}
+            st.markdown("**Imagens**")
+            todas = {}
+            for m in library.manifesto():
+                if m.get("tag") == eq.modalidade or st.session_state.get("tec_todas"):
+                    todas[f"manifesto · {m['arquivo']}"] = library.PASTA_ENVIO / m["arquivo"]
+            for f in library.listar_reais(eq.modalidade):
+                todas.setdefault(f"{f.parent.name} · {f.name}", f)
+            for f in library.listar_anomalas():
+                todas[f"ANOMALA · {f.name}"] = f
+            st.checkbox("Listar arquivos de todas as modalidades", key="tec_todas")
+            esc = st.multiselect("Enviar estes arquivos (vazio = usar a biblioteca)", list(todas))
+            up = st.file_uploader("Ou envie seus próprios .dcm", type=["dcm"], accept_multiple_files=True)
+            arqs = [todas[e] for e in esc]
+            if up:
+                import tempfile
+                pasta = Path(tempfile.mkdtemp(prefix="dicomsim_up_"))
+                for u in up:
+                    (pasta / u.name).write_bytes(u.getvalue())
+                    arqs.append(pasta / u.name)
+            if arqs:
+                extra["arquivos"] = arqs
+            st.markdown("**Exame e paciente**")
+            m1, m2 = st.columns(2)
+            extra["status_mpps"] = {"Automático": None, "Forçar COMPLETED": "COMPLETED",
+                                    "Forçar DISCONTINUED": "DISCONTINUED"}[
+                m1.selectbox("Status final do MPPS", ["Automático", "Forçar COMPLETED",
+                                                      "Forçar DISCONTINUED"])]
+            if m2.checkbox("Informar paciente manualmente"):
+                p1, p2, p3, p4 = st.columns(4)
+                item = {"nome": p1.text_input("Nome (SOBRENOME^NOME)", "TESTE^MANUAL"),
+                        "id": p2.text_input("ID do paciente", "MAN0001"),
+                        "acesso": p3.text_input("Accession", "MANACC1"),
+                        "estudo_uid": p4.text_input("Study UID (vazio = novo)", ""),
+                        "modalidade": eq.modalidade, "procedimento": "Exame manual",
+                        "nascimento": "", "sexo": "O", "passo": "SPS1", "proc_id": "REQ1", "data": ""}
+                usar_wl = False
+            vezes = st.number_input("Repetir o exame N vezes", 1, 200, 1)
+            extra["vezes"] = int(vezes)
 
     if st.button("▶ Realizar exame", type="primary", use_container_width=True):
-        em = Emissor(nome=eq.nome, imprimir=False)
-        with st.spinner("Realizando exame..."):
-            r = executar_exame(eq, dest, item=item, em=em, usar_worklist=usar_wl)
-        st.session_state["ultimo"] = em
-        salvar_hist({"quando": datetime.now().isoformat(timespec="seconds"),
-                     "equipamento": eq.nome, "destino": str(dest.pacs), "ok": r.ok,
-                     "imagens": r.imagens, "paciente": r.paciente,
-                     "etapas": em.resumo()["etapas"]})
+        vezes = extra.pop("vezes", 1)
+        for n in range(vezes):
+            em = Emissor(nome=eq.nome, imprimir=False)
+            with st.spinner(f"Realizando exame {n + 1}/{vezes}..."):
+                r = executar_exame(eq, dest, item=item, em=em, usar_worklist=usar_wl, **extra)
+            st.session_state["ultimo"] = em
+            salvar_hist({"quando": datetime.now().isoformat(timespec="seconds"),
+                         "equipamento": eq.nome, "destino": str(dest.pacs), "ok": r.ok,
+                         "imagens": r.imagens, "paciente": r.paciente,
+                         "etapas": em.resumo()["etapas"]})
     if "ultimo" in st.session_state:
         semaforo(st.session_state["ultimo"], modo)
 

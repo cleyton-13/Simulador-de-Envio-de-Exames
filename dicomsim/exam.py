@@ -6,8 +6,9 @@
 from __future__ import annotations
 
 import socket
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 
+from pydicom import dcmread
 from pydicom.uid import generate_uid
 
 from . import library, steps
@@ -47,7 +48,11 @@ def exame_sintetico(eq: Equipamento):
 
 def executar_exame(eq: Equipamento, dest: Destino, item: dict | None = None,
                    em: Emissor | None = None, usar_worklist=True,
-                   porta_escuta=None, registro: Registro | None = None) -> ResultadoExame:
+                   porta_escuta=None, registro: Registro | None = None, arquivos=None,
+                   filtros_wl: dict | None = None, status_mpps=None) -> ResultadoExame:
+    """arquivos: lista de .dcm a enviar no lugar da biblioteca (controle total).
+    filtros_wl: modalidade/data/paciente/estacao da consulta de worklist.
+    status_mpps: força COMPLETED ou DISCONTINUED no fim do exame."""
     em = em or Emissor(nome=eq.nome)
     aet = eq.aet
     em.emitir("inicio", INFO, f"{eq.modalidade} · {eq.fabricante} {eq.modelo} · destino {dest.pacs}")
@@ -55,7 +60,8 @@ def executar_exame(eq: Equipamento, dest: Destino, item: dict | None = None,
     # 1) worklist ------------------------------------------------------
     if item is None:
         if usar_worklist and dest.ris is not None:
-            lista = steps.consultar_worklist(em, aet, dest.ris, modalidade=eq.modalidade)
+            f = {"modalidade": eq.modalidade, **(filtros_wl or {})}
+            lista = steps.consultar_worklist(em, aet, dest.ris, **f)
             if lista:
                 item = lista[0]
         elif not usar_worklist:
@@ -75,13 +81,17 @@ def executar_exame(eq: Equipamento, dest: Destino, item: dict | None = None,
 
     # 3) aquisição + C-STORE ------------------------------------------
     registro = registro or Registro()
-    anomalas = eq.origem_imagens == "anomala"
+    if arquivos:   # um envio por arquivo escolhido, numa série só
+        eq = replace(eq, series=[{"descricao": "ARQUIVOS", "imagens": len(arquivos)}])
+    anomalas = eq.origem_imagens == "anomala" or bool(
+        arquivos and any("casos_especiais" in str(a) or "ANOM" in str(a) for a in arquivos))
     series_info, todas, ref_imgs = [], [], []
     contador = 0
     for si, s in enumerate(eq.series, 1):
         dss, serie_uid, reaprov = [], None, 0
         for i in range(int(s.get("imagens", 1))):
-            ds = library.obter_imagem(eq.modalidade, contador, eq.origem_imagens)
+            ds = (dcmread(str(arquivos[contador]), force=True) if arquivos
+                  else library.obter_imagem(eq.modalidade, contador, eq.origem_imagens))
             est, ser, sop, reuso = registro.ids(eq.nome, eq.identidade, si, i + 1, estudo_uid)
             serie_uid = ser
             reaprov += reuso
@@ -112,7 +122,7 @@ def executar_exame(eq: Equipamento, dest: Destino, item: dict | None = None,
     if mpps_uid:
         steps.mpps_concluir(em, aet, dest.pacs, mpps_uid,
                             [s for s in series_info if s["instancias"]],
-                            status="DISCONTINUED" if houve_falha else "COMPLETED")
+                            status=status_mpps or ("DISCONTINUED" if houve_falha else "COMPLETED"))
 
     # 5) Storage Commitment --------------------------------------------
     if eq.commitment:

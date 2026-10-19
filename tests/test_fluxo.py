@@ -133,7 +133,7 @@ def test_anomalas_nao_derrubam_o_exame(srv):
 def test_todas_as_imagens_reais_sao_aceitas(srv):
     """Cada arquivo real do manifesto (incl. JPEG2000, JPEG-LS, RLE, big endian)."""
     from dicomsim import library
-    for mod in ("CT", "MR", "NM", "US", "CR", "OT", "SR"):
+    for mod in ("CT", "MR", "CR", "DX", "US", "XA", "MG", "RF", "PT", "NM", "OT", "SR"):
         n = len(library.listar_reais(mod))
         if not n:
             continue
@@ -207,3 +207,24 @@ def test_cadastro_de_equipamento():
         profiles.salvar_equipamento(d, dict(eqd))
     profiles.excluir_equipamento(d, "Novo")
     assert all(e["nome"] != "Novo" for e in d["equipamentos"])
+
+
+def test_controle_total_arquivos_filtros_e_mpps(srv):
+    from dicomsim import library
+    arqs = library.listar_reais("MR")[:2]
+    em = Emissor(imprimir=False)
+    r = executar_exame(eq(modalidade="MR"), destino(srv), em=em, arquivos=arqs,
+                       filtros_wl={"modalidade": "MR"}, status_mpps="DISCONTINUED")
+    assert r.ok and r.imagens == 2
+    assert [m["status"] for m in srv.mpps.values()] == ["DISCONTINUED"]
+
+
+def test_timeouts_ajustaveis():
+    from dicomsim import netutil
+    antigo = dict(netutil.TIMEOUTS)
+    try:
+        netutil.TIMEOUTS.update(acse=3, dimse=7)
+        ae = netutil.nova_ae("X")
+        assert ae.acse_timeout == 3 and ae.dimse_timeout == 7
+    finally:
+        netutil.TIMEOUTS.update(antigo)
